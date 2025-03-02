@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 5rem;
+      background-color: #f9fafb;
+    }
+    .container {
+      width: 100%;
+      max-width: 48rem;
+      padding: 0 1rem;
+    }
+  </style>
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@unocss/runtime/uno.global.js" as="script">
+  <style>
+    body { visibility: hidden; }
+  </style>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.body.style.visibility = 'visible';
+      }, 50);
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime/uno.global.js"></script>
+  <link rel="stylesheet" href="/stylesheets/reset.css">
+  <style>
+    .search-input {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input:focus {
+      box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-button {
+      background: #3b82f6;
+      font-weight: 500;
+      letter-spacing: 0.025em;
+    }
+
+    .search-button:hover {
+      background: #2563eb;
+    }
+
+    .search-button:active {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">搜索一下</h1>
+    
+    <form action="/search" method="GET" class="w-full flex flex-col items-center">
+      <div class="w-full max-w-2xl flex gap-2">
+        <input 
+          type="text" 
+          name="q" 
+          placeholder="请输入搜索内容" 
+          class="search-input flex-1 px-4 py-3 rounded-lg"
+        >
+        <button 
+          type="submit" 
+          class="search-button px-6 py-3 text-white rounded-lg transition-all duration-200"
+        >
+          搜索
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+</html> 

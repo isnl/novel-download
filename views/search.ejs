@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 预加载 UnoCSS -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@unocss/runtime/uno.global.js" as="script">
+  <!-- 添加一个占位样式，防止闪烁 -->
+  <style>
+    body { visibility: hidden; }
+  </style>
+  <script>
+    // 确保 UnoCSS 加载完成前不显示内容
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.body.style.visibility = 'visible';
+      }, 50);
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime/uno.global.js"></script>
+  <link rel="stylesheet" href="/stylesheets/reset.css">
+  <style>
+    .search-input {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-input:focus {
+      box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-button {
+      background: #3b82f6;
+      font-weight: 500;
+      letter-spacing: 0.025em;
+    }
+
+    .search-button:hover {
+      background: #2563eb;
+    }
+
+    .search-button:active {
+      transform: translateY(1px);
+    }
+
+    .result-card {
+      border: 1px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+
+    .result-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-1px);
+    }
+
+    .tab-button {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .tab-button::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #3b82f6;
+      transform: scaleX(0);
+      transition: transform 0.2s ease;
+    }
+
+    .tab-button.active {
+      color: #3b82f6;
+    }
+
+    .tab-button.active::after {
+      transform: scaleX(1);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* 添加关键渲染路径的样式 */
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 0;
+      background-color: #f9fafb;
+    }
+    .container {
+      width: 100%;
+      max-width: 64rem;
+      padding: 0 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 搜索区域 -->
+    <form action="/search" method="GET" class="w-full flex flex-col items-center mb-8">
+      <div class="w-full max-w-2xl flex gap-2">
+        <input 
+          type="text" 
+          name="q" 
+          value="<%= searchQuery %>"
+          placeholder="请输入搜索内容" 
+          class="search-input flex-1 px-4 py-3 rounded-lg"
+        >
+        <button 
+          type="submit" 
+          class="search-button px-6 py-3 text-white rounded-lg transition-all duration-200"
+        >
+          搜索
+        </button>
+      </div>
+    </form>
+
+    <!-- 搜索结果区域 -->
+    <div class="w-full">
+      <% if (searchQuery) { %>
+        <h2 class="text-xl font-semibold mb-6 text-gray-700">搜索结果：<span class="text-blue-600"><%= searchQuery %></span></h2>
+        
+        <!-- 书源 Tab 切换 -->
+        <div class="border-b border-gray-200 mb-6">
+          <div class="flex gap-8">
+            <button onclick="switchTab('qidian')" class="tab-button active pb-2 px-1 text-gray-600">起点中文网</button>
+            <button onclick="switchTab('zongheng')" class="tab-button pb-2 px-1 text-gray-600">纵横中文网</button>
+            <button onclick="switchTab('jjwxc')" class="tab-button pb-2 px-1 text-gray-600">晋江文学城</button>
+            <button onclick="switchTab('sfacg')" class="tab-button pb-2 px-1 text-gray-600">SF轻小说</button>
+          </div>
+        </div>
+
+        <!-- 起点中文网结果 -->
+        <div id="qidian" class="tab-content active space-y-4">
+          <% for(let i = 1; i <= 3; i++) { %>
+            <div class="result-card bg-white p-6 rounded-lg">
+              <div class="flex items-start gap-4">
+                <div class="w-20 h-28 bg-gray-100 rounded flex-shrink-0"></div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-medium text-gray-800 mb-2">斗破苍穹 <%= i %></h3>
+                  <p class="text-sm text-gray-500 mb-1">作者：天蚕土豆</p>
+                  <p class="text-sm text-gray-500 mb-3">分类：玄幻 | 连载中 | 1234.5万字</p>
+                  <p class="text-gray-600 text-sm line-clamp-2">这里是小说简介，讲述了一个平凡少年的成长历程...</p>
+                  <div class="mt-3 flex items-center gap-4">
+                    <span class="text-orange-500 text-sm">4.5分</span>
+                    <a href="#" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
+                      立即阅读
+                      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- 纵横中文网结果 -->
+        <div id="zongheng" class="tab-content space-y-4">
+          <% for(let i = 1; i <= 3; i++) { %>
+            <div class="result-card bg-white p-6 rounded-lg">
+              <div class="flex items-start gap-4">
+                <div class="w-20 h-28 bg-gray-100 rounded flex-shrink-0"></div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-medium text-gray-800 mb-2">诡秘之主 <%= i %></h3>
+                  <p class="text-sm text-gray-500 mb-1">作者：爱潜水的乌贼</p>
+                  <p class="text-sm text-gray-500 mb-3">分类：奇幻 | 已完结 | 890.3万字</p>
+                  <p class="text-gray-600 text-sm line-clamp-2">蒸汽与机械的浪潮中，谁能触及非凡的真实...</p>
+                  <div class="mt-3 flex items-center gap-4">
+                    <span class="text-orange-500 text-sm">4.8分</span>
+                    <a href="#" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
+                      立即阅读
+                      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- 晋江文学城结果 -->
+        <div id="jjwxc" class="tab-content space-y-4">
+          <% for(let i = 1; i <= 3; i++) { %>
+            <div class="result-card bg-white p-6 rounded-lg">
+              <div class="flex items-start gap-4">
+                <div class="w-20 h-28 bg-gray-100 rounded flex-shrink-0"></div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-medium text-gray-800 mb-2">魔道祖师 <%= i %></h3>
+                  <p class="text-sm text-gray-500 mb-1">作者：墨香铜臭</p>
+                  <p class="text-sm text-gray-500 mb-3">分类：古风 | 已完结 | 78.2万字</p>
+                  <p class="text-gray-600 text-sm line-clamp-2">前世过于张扬，重生后的魏无羡隐藏在暗处...</p>
+                  <div class="mt-3 flex items-center gap-4">
+                    <span class="text-orange-500 text-sm">4.9分</span>
+                    <a href="#" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
+                      立即阅读
+                      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- SF轻小说结果 -->
+        <div id="sfacg" class="tab-content space-y-4">
+          <% for(let i = 1; i <= 3; i++) { %>
+            <div class="result-card bg-white p-6 rounded-lg">
+              <div class="flex items-start gap-4">
+                <div class="w-20 h-28 bg-gray-100 rounded flex-shrink-0"></div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-medium text-gray-800 mb-2">刀剑神域 <%= i %></h3>
+                  <p class="text-sm text-gray-500 mb-1">作者：川原砾</p>
+                  <p class="text-sm text-gray-500 mb-3">分类：轻小说 | 连载中 | 45.6万字</p>
+                  <p class="text-gray-600 text-sm line-clamp-2">这是一个关于虚拟世界与现实的故事...</p>
+                  <div class="mt-3 flex items-center gap-4">
+                    <span class="text-orange-500 text-sm">4.7分</span>
+                    <a href="#" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
+                      立即阅读
+                      <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <p class="text-center text-gray-500">请输入搜索关键词</p>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      // 移除所有 tab 的 active 类
+      document.querySelectorAll('.tab-button').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // 添加当前 tab 的 active 类
+      document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

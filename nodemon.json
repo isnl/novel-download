@@ -1,0 +1,13 @@
+{
+  "watch": [
+    "views/",
+    "routes/",
+    "app.ts"
+  ],
+  "ext": "ts,json,ejs",
+  "ignore": [
+    "node_modules/",
+    "dist/"
+  ],
+  "exec": "ts-node app.ts"
+} 
