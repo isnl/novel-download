@@ -5,13 +5,9 @@ import axios from 'axios';
 import { promisify } from 'util';
 import AdmZip from 'adm-zip';
 import iconv from 'iconv-lite';
-import jschardet from 'jschardet';
 import { v4 as uuidv4 } from 'uuid';
 import Epub from 'epub-gen';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { exec } from 'child_process';
-
-const execAsync = promisify(exec);
 
 export const router = express.Router();
 
