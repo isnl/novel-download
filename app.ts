@@ -6,7 +6,7 @@ import { router as downloadRouter } from "./routes/download";
 import { router as apiRouter } from "./routes/api";
 
 const app = express();
-const port = 5020;
+const port = 5030;
 
 // 设置视图引擎
 app.set("views", path.join(__dirname, "views"));

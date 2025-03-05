@@ -259,21 +259,13 @@
       <h3 class="text-xl font-semibold mb-4 text-gray-800">选择下载格式</h3>
       
       <div class="mb-4">
-        <div class="checkbox-item">
-          <input type="checkbox" id="txt" value="txt" checked>
+        <div class="radio-item">
+          <input type="radio" id="txt" name="format" value="txt" checked>
           <label for="txt">TXT 格式</label>
         </div>
-        <div class="checkbox-item">
-          <input type="checkbox" id="epub" value="epub">
+        <div class="radio-item">
+          <input type="radio" id="epub" name="format" value="epub">
           <label for="epub">EPUB 格式</label>
-        </div>
-        <div class="checkbox-item">
-          <input type="checkbox" id="mobi" value="mobi">
-          <label for="mobi">MOBI 格式</label>
-        </div>
-        <div class="checkbox-item">
-          <input type="checkbox" id="pdf" value="pdf">
-          <label for="pdf">PDF 格式</label>
         </div>
       </div>
       
@@ -299,6 +291,43 @@
       </div>
     </div>
   </div>
+  
+  <style>
+    /* 添加单选按钮样式 */
+    .radio-item {
+      display: flex;
+      align-items: center;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+  
+    .radio-item:hover {
+      border-color: #3b82f6;
+    }
+  
+    .radio-item input[type="radio"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin-right: 0.75rem;
+      accent-color: #3b82f6;
+    }
+  
+    .radio-item label {
+      font-size: 1.1rem;
+      flex: 1;
+      padding: 0.5rem 0;
+    }
+  
+    .radio-item input[type="radio"]:checked + label {
+      color: #3b82f6;
+      font-weight: 500;
+    }
+  </style>
   
   <script>
     // 异步加载内容
@@ -366,21 +395,11 @@
       
       // 确认下载
       confirmDownload.addEventListener('click', async () => {
-        // 获取选中的格式
-        const formats = [];
-        document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-          formats.push(checkbox.value);
-        });
-        
-        if (formats.length === 0) {
-          alert('请至少选择一种下载格式');
-          return;
-        }
-        
-        // 获取选中的书源和书籍
+        const format = document.querySelector('input[name="format"]:checked').value;
         const source = sourceSelect.value;
         const bookId = bookSelect.value;
         const coverUrl = coverSelect.value;
+        const bookTitle = downloadModal.querySelector('h3').textContent.replace(/^下载《|》$/g, '');
         
         if (!bookId) {
           alert('请选择要下载的书籍');
@@ -392,40 +411,31 @@
         confirmDownload.disabled = true;
         
         try {
-          // 创建一个隐藏的表单来处理文件下载
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = '/download';
-          form.target = '_blank'; // 在新标签页中打开下载
-          form.style.display = 'none';
-          
-          // 添加表单字段
-          const addField = (name, value) => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            input.value = value;
-            form.appendChild(input);
-          };
-          
-          // 添加所有需要的字段
-          addField('source', source);
-          addField('bookId', bookId);
-          if (coverUrl) addField('coverUrl', coverUrl);
-          
-          // 添加格式字段
-          formats.forEach(format => {
-            addField('formats[]', format);
+          const response = await fetch('/download', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              source,
+              bookId,
+              format,
+              coverUrl
+            })
           });
           
-          // 添加表单到文档并提交
-          document.body.appendChild(form);
-          form.submit();
+          if (!response.ok) throw new Error('下载失败');
           
-          // 移除表单
-          setTimeout(() => {
-            document.body.removeChild(form);
-          }, 100);
+          // 获取文件流并使用书籍标题作为文件名
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${bookTitle}.${format}`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
           
           // 关闭弹窗
           downloadModal.classList.remove('active');
