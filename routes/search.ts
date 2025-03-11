@@ -1,6 +1,6 @@
 import express from "express";
 import { searchBooks as searchIXDZS } from "./sources/ixdzs";
-
+import { searchBooks as searchLTXS5 } from "./sources/ltxs5.net";
 export const router = express.Router();
 
 interface SearchResult {
@@ -8,7 +8,7 @@ interface SearchResult {
   books: any[];
 }
 
-type SourceId = "ixdzs8" | "fanqie";
+type SourceId = "ixdzs8" | "fanqie" | "ltxs5.net";
 
 // 页面渲染路由
 router.get("/", async (req, res) => {
@@ -29,12 +29,10 @@ router.get("/", async (req, res) => {
       {
         id: "ixdzs8",
         name: "爱下电子书",
-        search: searchIXDZS,
       },
       {
-        id: "fanqie",
-        name: "番茄小说",
-        search: async () => [], // 暂时返回空数组，等待实现
+        id: "ltxs5.net",
+        name: "52书库",
       },
     ];
 
@@ -74,6 +72,7 @@ router.get("/api", async (req, res) => {
     const sources = {
       ixdzs8: searchIXDZS,
       fanqie: async () => [], // 暂时返回空数组，等待实现
+      "ltxs5.net": searchLTXS5,
     };
 
     // 检查书源是否存在

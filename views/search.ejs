@@ -269,7 +269,25 @@
         </div>
       </div>
       
-      <!-- 移除书源和书籍选择部分 -->
+      <!-- 添加下载配置选项 -->
+      <div id="downloadConfig" class="mb-4" style="display: none;">
+        <h4 class="text-lg font-medium mb-2 text-gray-700">下载配置</h4>
+        <div class="space-y-4">
+          <div class="flex flex-col">
+            <label for="concurrency" class="text-sm text-gray-600 mb-1">并发数</label>
+            <input type="number" id="concurrency" min="1" max="5" value="3" 
+              class="border rounded px-3 py-2 focus:border-blue-500 outline-none">
+            <span class="text-xs text-gray-500 mt-1">建议值：1-5，默认为3</span>
+          </div>
+          <div class="flex flex-col">
+            <label for="delay" class="text-sm text-gray-600 mb-1">请求延迟(毫秒)</label>
+            <input type="number" id="delay" min="0" max="2000" value="500" step="100"
+              class="border rounded px-3 py-2 focus:border-blue-500 outline-none">
+            <span class="text-xs text-gray-500 mt-1">建议值：300-1000，默认为500</span>
+          </div>
+        </div>
+      </div>
+      
       <input type="hidden" id="sourceSelect">
       <input type="hidden" id="bookSelect">
       <input type="hidden" id="coverSelect">
@@ -336,11 +354,9 @@
       const activeSource = '<%= activeSource %>';
       
       if (searchQuery) {
-        // 使用 setTimeout 延迟加载内容，确保页面先渲染
+        // 只加载当前激活的标签内容
         setTimeout(() => {
-          <% sources.forEach(source => { %>
-            loadTabContent('<%= source.id %>', searchQuery);
-          <% }); %>
+          loadTabContent(activeSource, searchQuery);
         }, 100);
         
         // 标签切换功能
@@ -364,6 +380,12 @@
             
             button.classList.add('active');
             document.getElementById(sourceId).classList.add('active');
+            
+            // 检查内容是否已加载，如果未加载则加载内容
+            const contentElement = document.getElementById(`content-${sourceId}`);
+            if (contentElement.innerHTML.trim() === '') {
+              loadTabContent(sourceId, searchQuery);
+            }
           });
         });
       }
@@ -379,13 +401,6 @@
       // 关闭弹窗
       cancelDownload.addEventListener('click', () => {
         downloadModal.classList.remove('active');
-      });
-      
-      // 点击弹窗外部关闭
-      downloadModal.addEventListener('click', (e) => {
-        if (e.target === downloadModal) {
-          downloadModal.classList.remove('active');
-        }
       });
       
       // 书源切换时更新书籍列表
@@ -406,6 +421,15 @@
           return;
         }
         
+        // 获取下载配置
+        let downloadConfig = undefined;
+        if (source === 'ltxs5.net') {
+          downloadConfig = {
+            concurrency: parseInt(document.getElementById('concurrency').value, 10),
+            delay: parseInt(document.getElementById('delay').value, 10)
+          };
+        }
+        
         // 显示加载动画
         confirmSpinner.style.display = 'inline-block';
         confirmDownload.disabled = true;
@@ -420,7 +444,8 @@
               source,
               bookId,
               format,
-              coverUrl
+              coverUrl,
+              downloadConfig // 添加下载配置
             })
           });
           
@@ -490,8 +515,8 @@
                     ${book.description ? `<p class="text-gray-600 text-sm line-clamp-2">${book.description}</p>` : ''}
                     <div class="mt-3 flex items-center gap-4">
                       ${book.latestChapter ? `<span class="text-gray-500 text-sm">最新：${book.latestChapter}</span>` : ''}
-                      <a href="${book.url}" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
-                        立即阅读
+                      <a href="${book.url}" target="_blank" class="text-blue-500 hover:text-blue-600 text-sm inline-flex items-center">
+                        查看详情
                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
@@ -525,16 +550,20 @@
       }
     }
     
-    // 添加打开下载弹窗的函数
+    // 修改打开下载弹窗的函数
     function openDownloadModal(sourceId, bookId, bookTitle, cover) {
       const downloadModal = document.getElementById('downloadModal');
       const sourceSelect = document.getElementById('sourceSelect');
       const bookSelect = document.getElementById('bookSelect');
+      const downloadConfig = document.getElementById('downloadConfig');
       
       // 设置隐藏字段的值
       sourceSelect.value = sourceId;
       bookSelect.value = bookId;
       coverSelect.value = cover || '';
+      
+      // 根据源显示/隐藏下载配置
+      downloadConfig.style.display = sourceId === 'ltxs5.net' ? 'block' : 'none';
       
       // 更新弹窗标题，显示书籍名称
       const modalTitle = downloadModal.querySelector('h3');

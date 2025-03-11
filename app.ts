@@ -3,7 +3,6 @@ import path from "path";
 import { router as indexRouter } from "./routes/index";
 import { router as searchRouter } from "./routes/search";
 import { router as downloadRouter } from "./routes/download";
-import { router as apiRouter } from "./routes/api";
 
 const app = express();
 const port = 5030;
@@ -26,7 +25,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/search", searchRouter);
 app.use("/download", downloadRouter);
-app.use("/api", apiRouter);
 
 app.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
